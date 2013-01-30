@@ -84,9 +84,9 @@ public class SDKWebView extends Activity {
 				Uri uri = Uri.parse(url);  
 	            Intent intent = new Intent(Intent.ACTION_VIEW, uri);  
 	            startActivity(intent);*/
-				//Download d = new Download(url);
-				ApkDownloadManager.getInstance(SDKWebView.this).doDown(url);
-				Log.d("TAG", url);
+				String apkName = contentDisposition.substring(contentDisposition.indexOf("=") + 1,contentDisposition.indexOf(".") - 1);
+				Download d = new Download(url, apkName);
+				ApkDownloadManager.getInstance(SDKWebView.this).add(d).doDown();
 			}
 		});
 		fLayout.removeAllViews();

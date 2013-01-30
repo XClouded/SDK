@@ -11,6 +11,8 @@ import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.List;
 
+import me.yongbo.sdk.modle.Download;
+
 import android.app.AlertDialog;
 import android.app.Dialog;
 import android.app.ProgressDialog;
@@ -39,26 +41,18 @@ public class ApkDownloadManager {
 	private static ApkDownloadManager downloadManager;
 	
 	private Context mContext;
-	//通知对话框
-	private Dialog noticeDialog;
 	//下载对话框
 	private Dialog downloadDialog;
     //进度条
     private ProgressBar mProgress;
     //显示下载数值
     private TextView mProgressText;
-    //查询动画
-    private ProgressDialog mProDialog;
     //进度值
     private int progress;
     //下载线程
     private Thread downLoadThread;
     //终止标记
     private boolean interceptFlag;
-	//提示语
-	private String updateMsg = "";
-	//返回的安装包url
-	private String apkUrl = "";
 	//下载包保存路径
     private String savePath = "";
 	//apk保存完整路径
@@ -70,8 +64,7 @@ public class ApkDownloadManager {
 	//已下载文件大小
 	private String tmpFileSize;
 	
-	private List<String> urls = new ArrayList<String>();
-	
+	private Download download;
 	private Handler mHandler = new Handler(){
     	public void handleMessage(Message msg) {
     		switch (msg.what) {
@@ -85,7 +78,7 @@ public class ApkDownloadManager {
 				break;
 			case DOWN_NOSDCARD:
 				downloadDialog.dismiss();
-				Toast.makeText(mContext, "无法下载安装文件，请检查SD卡是否挂载", 3000).show();
+				Toast.makeText(mContext, "无法下载安装文件，请插入SD卡", Toast.LENGTH_SHORT).show();
 				break;
 			}
     	};
@@ -105,8 +98,8 @@ public class ApkDownloadManager {
 		@Override
 		public void run() {
 			try {
-				String apkName = "OSChinaApp_.apk";
-				String tmpApk = "OSChinaApp_.tmp";
+				String apkName = download.getName() + ".apk";
+				String tmpApk = download.getName() + ".tmp";
 				//判断是否挂载了SD卡
 				if(!Environment.getExternalStorageState().equals(Environment.MEDIA_MOUNTED)){
 					//没有挂载SD卡，无法下载文件
@@ -135,7 +128,7 @@ public class ApkDownloadManager {
 				File tmpFile = new File(tmpFilePath);
 				FileOutputStream fos = new FileOutputStream(tmpFile);
 				
-				URL url = new URL(apkUrl);
+				URL url = new URL(download.getUrl());
 				HttpURLConnection conn = (HttpURLConnection)url.openConnection();
 				conn.connect();
 				int length = conn.getContentLength();
@@ -187,9 +180,9 @@ public class ApkDownloadManager {
 		builder.setTitle("正在下载...");
 		
 		final LayoutInflater inflater = LayoutInflater.from(mContext);
-		View v = inflater.inflate(R.layout.update_progress, null);
-		mProgress = (ProgressBar)v.findViewById(R.id.update_progress);
-		mProgressText = (TextView) v.findViewById(R.id.update_progress_text);
+		View v = inflater.inflate(R.layout.loading, null);
+		mProgress = (ProgressBar)v.findViewById(R.id.progress);
+		mProgressText = (TextView) v.findViewById(R.id.progress_text);
 		
 		builder.setView(v);
 		builder.setNegativeButton("取消", new OnClickListener() {	
@@ -215,8 +208,7 @@ public class ApkDownloadManager {
 	* 下载apk
 	* @param url
 	*/	
-	public void doDown(String url) {
-		this.apkUrl = url;
+	public void doDown() {
 		showDownloadDialog();
 		downLoadThread = new Thread(mdownApkRunnable);
 		downLoadThread.start();
@@ -234,5 +226,9 @@ public class ApkDownloadManager {
         Intent i = new Intent(Intent.ACTION_VIEW);
         i.setDataAndType(Uri.parse("file://" + apkfile.toString()), "application/vnd.android.package-archive"); 
         mContext.startActivity(i);
+	}
+	public ApkDownloadManager add(Download d){
+		this.download = d;
+		return downloadManager;
 	}
 }
