@@ -1,5 +1,6 @@
 package me.yongbo.sdk;
 
+import me.yongbo.sdk.modle.Download;
 import android.app.Activity;
 import android.content.Intent;
 import android.graphics.Bitmap;
@@ -79,9 +80,13 @@ public class SDKWebView extends Activity {
 			@Override
 			public void onDownloadStart(String url, String userAgent,
 					String contentDisposition, String mimetype, long contentLength) {
+				/*
 				Uri uri = Uri.parse(url);  
 	            Intent intent = new Intent(Intent.ACTION_VIEW, uri);  
-	            startActivity(intent);
+	            startActivity(intent);*/
+				//Download d = new Download(url);
+				ApkDownloadManager.getInstance(SDKWebView.this).doDown(url);
+				Log.d("TAG", url);
 			}
 		});
 		fLayout.removeAllViews();
@@ -97,4 +102,7 @@ public class SDKWebView extends Activity {
 		url = intent.getStringExtra("Url");
 		detail.loadUrl(url);
 	}
+	
+	
 }
+
