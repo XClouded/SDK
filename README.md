@@ -1,7 +1,5 @@
-SDK
-===
-
 Android广告墙插件
+===
 
 [戳这里,查看软件列表](http://iapp.wakao.me/iapk/offerList/1)  
 
